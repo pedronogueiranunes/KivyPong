@@ -5,13 +5,13 @@ from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, ReferenceListProperty, ObjectProperty
 from kivy.vector import Vector
 from kivy.clock import Clock
-from random import randint
 
 
-class PongPaddle(Widget):
+
+class PongPaddle(Widget): #-----------------------------------------------------
     score = NumericProperty(0)
 
-    def bounce_ball(self,ball):
+    def bounce_ball(self, ball):
         if self.collide_widget(ball):
             vx, vy = ball.velocity
             offset = (ball.center_y - self.center_y)/(self.height / 2)
@@ -19,18 +19,17 @@ class PongPaddle(Widget):
             vel = bounced * 1.1
             ball.velocity = vel.x, vel.y + offset
 
-
-class PongBall(Widget):
+#OK - CHECKED
+class PongBall(Widget): #-----------------------------------------------------------
     #velocidade da bola nos eixos X e Y
     velocity_x = NumericProperty(0)
     velocity_y = NumericProperty(0)
-
-    #referencelistproperty para juntar os valores de velocidade em uma instancia so
+   #referencelistproperty para juntar os valores de velocidade em uma instancia so
     velocity = ReferenceListProperty(velocity_x, velocity_y)
-
-    #funcao move ira mover a bola em um passo. Sera chamada em intervalos iguais para animar a bola
+  #funcao move ira mover a bola em um passo. Sera chamada em intervalos iguais para animar a bola
     def move(self):
         self.pos = Vector(*self.velocity) + self.pos
+#OK - CHECKED
 
 class PongGame(Widget): #classe do Jogo que recebe uma widget -------------------
     ball = ObjectProperty(None)
@@ -41,7 +40,7 @@ class PongGame(Widget): #classe do Jogo que recebe uma widget ------------------
         self.ball.center = self.center
         self.ball.velocity = vel
 
-    def update(self,dt):
+    def update(self, dt):
         self.ball.move()
 
         #movimentacao das paddles
@@ -49,23 +48,21 @@ class PongGame(Widget): #classe do Jogo que recebe uma widget ------------------
         self.player2.bounce_ball(self.ball)
 
 
-        #volta se bater em cima e embaixo
-        if (self.ball.y < 0) or (self.ball.top > self.height):
+        #volta se bater em cima e embaixo ---------------------------------
+        if (self.ball.y < self.y) or (self.ball.top > self.top):
             self.ball.velocity_y *= -1
-
-        #volta se bater nas laterais
-        if (self.ball.x < 0) or (self.ball.right > self.width):
-            self.ball.velocity_x *= -1
 
         #SCORE --------------------
         if self.ball.x < self.x:
             self.player2.score += 1
             self.serve_ball(vel=(4,0))
+
         if self.ball.x > self.width:
             self.player1.score += 1
-            self.serve_ball(vel=(4,0))
+            self.serve_ball(vel=(-4,0))
 
-    def on_touch_move(self,touch):
+#OK - CHECKED
+    def on_touch_move(self, touch):
         if touch.x < self.width/3:
             self.player1.center_y = touch.y
         if touch.x > self.width - self.width/3:
@@ -74,6 +71,7 @@ class PongGame(Widget): #classe do Jogo que recebe uma widget ------------------
 class PongApp(App): #classe do Jogo que recebe uma instancia de App do Kivy -----------------------
     def build(self): #funcao que retorna a instancia
         game = PongGame()
+        game.serve_ball()
         framerate = 60.0
         Clock.schedule_interval(game.update, 1.0/framerate)
         return game
